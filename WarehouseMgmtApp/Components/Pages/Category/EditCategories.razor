@@ -1,0 +1,17 @@
+﻿@page "/EditCategory/{Id}"
+@page "/NewCategory"
+
+
+<PageTitle>Edit Category</PageTitle>
+
+<h1>Categorias</h1>
+
+
+<EditCategory Id=@Id/>
+
+@code {
+    [Parameter]
+    public string Id { get; set; }
+
+  
+}

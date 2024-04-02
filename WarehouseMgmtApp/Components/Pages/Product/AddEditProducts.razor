@@ -1,0 +1,17 @@
+﻿@page "/AddEditProduct/{Id}"
+@page "/AddProduct"
+
+
+<PageTitle>Edit Product</PageTitle>
+
+<h1>Productos</h1>
+
+
+<AddEditProduct Id=@Id />
+
+@code {
+    [Parameter]
+    public string Id { get; set; }
+
+
+}

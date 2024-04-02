@@ -1,0 +1,63 @@
+﻿@using WarehouseMgmtApp.Client.Services
+@using WarehouseMgmtApp.Client.Services.Dtos
+@using WarehouseMgmtApp.Client.Models
+@inject NavigationManager NavigationManager
+@inject MetricUnitService metricUService
+@inject HttpClient HttpClient
+
+<PageTitle>Edit Metrics Units</PageTitle>
+
+<EditForm Method="post" Model="metric" OnValidSubmit="EnviarDatos" FormName="EditCatForm">
+
+    <div class="form-group">
+        <label for="name">Descripcion Unidad de Medida:</label>
+        <InputText id="descripcion" class="form-control" @bind-Value="metric.Description" />
+    </div>
+
+    <div class="form-group">
+        <button type="submit" class="btn btn-primary">Enviar</button>
+    </div>
+</EditForm>
+
+
+
+@code {
+    [Parameter]
+    public string Id { get; set; }
+
+
+    [SupplyParameterFromForm]
+    public MetricUnitDto metric { get; set; } = new MetricUnitDto();
+
+
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Id != null) //si no es nulo, es una edicion, se busca el texto categoria y se setea en el input
+        {
+            //metric = await metricUService.GetMetricUnitByIdAsync(Convert.ToInt32(Id));
+        }
+
+    }
+
+
+
+
+    public async Task EnviarDatos()
+    {
+        if (Id == null) // se agregara nuevo registro
+        {
+            await metricUService.AddMetricUnitAsync(metric);
+            NavigationManager.NavigateTo("/MetricsUnits");
+        }
+        else //editar una categoria
+        {
+            await metricUService.UpdateMetricUnitAsync(metric, Convert.ToInt32(Id));
+            NavigationManager.NavigateTo("/MetricsUnits");
+        }
+    }
+
+}
+
+

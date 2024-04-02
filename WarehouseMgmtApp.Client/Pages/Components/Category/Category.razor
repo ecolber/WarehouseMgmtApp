@@ -1,0 +1,80 @@
+﻿@page "/category"
+
+@using WarehouseMgmtApp.Client.Services
+@using WarehouseMgmtApp.Client.Services.Dtos
+@inject CategoryService Service
+@inject IJSRuntime JSRuntime
+@rendermode InteractiveServer
+<PageTitle>Categories</PageTitle>
+
+<a href="/NewCategory" class="btn btn-primary">Nuevo</a>
+
+@if (categories == null)
+{
+    <p><em>Cargando...</em></p>
+}
+else
+{
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Descripción</th>
+                <th>Acción</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var category in categories)
+            {
+                <tr>
+                    <td>@category.Id</td>
+                    <td>@category.Description</td>
+                    <td>
+                        <a href="/EditCategory/@category.Id" class="btn btn-primary">Editar</a>
+                        <button type="button" @onclick="@(() => EliminarCategoria(@category.Id))" class="btn btn-danger">Eliminar</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private IEnumerable<CategoryDto>? categories;
+
+    protected override async Task OnInitializedAsync()
+    {
+        categories = await Service.GetCategoryAsync();
+        StateHasChanged();
+    }
+
+    public async void EliminarCategoria(int Id)
+    {
+        var confirmar = await JSRuntime.InvokeAsync<bool>("confirm", "¿Estás seguro de que quieres eliminar esta categoría?");
+
+        if (confirmar)
+        {
+            try
+            {
+                var exito = await Service.DeleteAsync(Id);
+
+                if (exito)
+                {
+                    // Eliminación exitosa, actualizar la lista de categorías o realizar cualquier otra acción necesaria.
+                    categories = await Service.GetCategoryAsync();
+                    StateHasChanged();
+                }
+                else
+                {
+                    // Manejar errores de eliminación
+                }
+            }
+            catch (Exception ex)
+            {
+                // Manejar errores de red u otros errores
+            }
+        }
+    }
+
+}

@@ -1,0 +1,17 @@
+﻿@page "/AddEditProductType/{Id}"
+@page "/NewProductType"
+
+
+<PageTitle>Edit Products Types</PageTitle>
+
+<h1>Tipo de Producto</h1>
+
+
+<AddEditProductType Id=@Id />
+
+@code {
+    [Parameter]
+    public string Id { get; set; }
+
+
+}

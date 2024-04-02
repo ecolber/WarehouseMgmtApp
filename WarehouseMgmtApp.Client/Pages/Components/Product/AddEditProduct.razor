@@ -1,0 +1,104 @@
+﻿@using WarehouseMgmtApp.Client.Services
+@using WarehouseMgmtApp.Client.Services.Dtos
+@using WarehouseMgmtApp.Client.Models
+@inject NavigationManager NavigationManager
+@inject ProductService productService
+@inject CategoryService categoryService
+@inject ProductTypeService productTypeService
+@inject MetricUnitService metricUService
+@attribute [StreamRendering]
+
+<PageTitle>Edit Products</PageTitle>
+
+@if (categories != null && productTypes != null && metricsUnit != null)
+{
+    <EditForm Method="post" Model="product" OnValidSubmit="EnviarDatos" FormName="EditProdForm">
+
+        <div class="form-group">
+            <label for="name">Nombre:</label>
+            <InputText id="nombre" class="form-control" @bind-Value="product.Name" />
+            <label for="description">Descripcion:</label>
+            <InputText id="description" class="form-control" @bind-Value="product.Description" />
+            <label for="price">Precio:</label>
+            <InputNumber id="price" class="form-control" @bind-Value="product.Price" />
+            <label for="sku">SKU:</label>
+            <InputText id="sku" class="form-control" @bind-Value="product.SKU" />
+            <label for="stock">Stock:</label>
+            <InputNumber id="stock" class="form-control" @bind-Value="product.Stock" />
+            <label for="category">Categoria:</label>
+            <InputSelect id="categories" class="form-control" @bind-Value="product.categoryId">
+                @foreach (var category in categories)
+                {
+                    <option value="@category.Id">@category.Description</option>
+                }
+            </InputSelect>
+            <label for="productType">Tipo de Producto:</label>
+            <InputSelect id="productType" class="form-control" @bind-Value="product.productTypeId">
+                @foreach (var pt in productTypes)
+                {
+                    <option value="@pt.Id">@pt.Description</option>
+                }
+            </InputSelect>
+            <label for="metricU">Unidad de Medida:</label>
+            <InputSelect id="metricU" class="form-control" @bind-Value="product.metricUnitId">
+                @foreach (var mu in metricsUnit)
+                {
+                    <option value="@mu.Id">@mu.Description</option>
+                }
+            </InputSelect>
+        </div>
+
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary">Enviar</button>
+        </div>
+    </EditForm>
+}
+
+@code {
+    [Parameter]
+    public string Id { get; set; }
+
+
+    [SupplyParameterFromForm]
+    public ProductDto product { get; set; } = new ProductDto();
+
+    private IEnumerable<CategoryDto>? categories;
+    private IEnumerable<ProductTypeDto>? productTypes;
+    private IEnumerable<MetricUnitDto>? metricsUnit;
+
+
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Id != null) //si no es nulo, es una edicion, se busca el texto categoria y se setea en el input
+        {
+            product = await productService.GetProductByIdAsync(Convert.ToInt32(Id));
+        }
+
+        categories = await categoryService.GetCategoryAsync();
+        productTypes = await productTypeService.GetProductTypeAsync();
+        metricsUnit = await metricUService.GetMetricUnitAsync();
+
+    }
+
+
+
+
+    public async Task EnviarDatos()
+    {
+        if (Id == null) // se agregara nuevo registro
+        {
+            await productService.AddProductAsync(product);
+            NavigationManager.NavigateTo("/products");
+        }
+        else //editar un producto
+        {
+            await productService.UpdateProductAsync(product, Convert.ToInt32(Id));
+            NavigationManager.NavigateTo("/Products");
+        }
+    }
+
+}
+
+

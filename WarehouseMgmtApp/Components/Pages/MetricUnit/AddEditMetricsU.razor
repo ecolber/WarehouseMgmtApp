@@ -1,0 +1,17 @@
+﻿@page "/AddEditMetric/{Id}"
+@page "/NewMetricU"
+
+
+<PageTitle>Edit Metric Units</PageTitle>
+
+<h1>Unidad de Medida</h1>
+
+
+<AddEditMetricU Id=@Id />
+
+@code {
+    [Parameter]
+    public string Id { get; set; }
+
+
+}

@@ -1,0 +1,64 @@
+﻿@using WarehouseMgmtApp.Client.Auth
+@using WarehouseMgmtApp;
+@using Microsoft.AspNetCore.Components.Authorization;
+@inject AuthenticationStateProvider autenticacionProvider
+@inject NavigationManager navManager
+@inject UserService Service
+@inject HttpClient httpClient
+@rendermode InteractiveServer
+
+
+<div class="row mt-5">
+
+    <div class="col-lg-4 offset-lg-4 border">
+
+        <div class="mb-3 text-center">
+            <h3>LOGIN</h3>
+        </div>
+
+        <div class="mb-3">
+            <label>Correo</label>
+            <input @bind="login.UserName" class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label>Contraseña</label>
+            <input @bind="login.Password" class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <button @onclick="IniciarSesion" class="btn btn-primary">Login</button>
+        </div>
+
+    </div>
+
+</div>
+
+
+@code {
+    private UserDto login = new UserDto();
+
+    private async Task IniciarSesion()
+    {
+        try
+        {
+            var loginResponse = await httpClient.PostAsJsonAsync<UserDto>("/api/Login", login);
+            if (loginResponse.IsSuccessStatusCode)
+            {
+                var sesionUsuario = await loginResponse.Content.ReadFromJsonAsync<UserDto>();
+                var autenticacionExt = (AuthenticationAuth)autenticacionProvider;
+                await autenticacionExt.UpdateAuthState(sesionUsuario);
+
+
+                navManager.NavigateTo("/Home");
+            }
+        }
+        catch (Exception ex)
+        {
+            
+            throw ex;
+        }
+      
+    }
+
+}

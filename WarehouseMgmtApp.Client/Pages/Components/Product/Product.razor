@@ -1,0 +1,110 @@
+﻿@page "/product"
+
+@using WarehouseMgmtApp.Client.Services
+@using WarehouseMgmtApp.Client.Services.Dtos
+@inject ProductService productService
+@inject CategoryService categoryService
+@inject ProductTypeService productTypeService
+@inject MetricUnitService metricUService
+@inject IJSRuntime JSRuntime
+@attribute [StreamRendering]
+@rendermode InteractiveServer
+
+<PageTitle>Products</PageTitle>
+
+<a href="/AddProduct" class="btn btn-primary">Nuevo</a>
+
+@if (products == null)
+{
+    <p><em>Cargando...</em></p>
+}
+else
+{
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Nombre</th>
+                <th>Descripción</th>
+                <th>Precio</th>
+                <th>SKU</th>
+                <th>Stock</th>
+                <th>Categoria</th>
+                <th>Tipo</th>
+                <th>Unidad de medida</th>
+                <th>Acción</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var product in products)
+            {
+                <tr>
+                    <td>@product.Id</td>
+                    <td>@product.Name</td>
+                    <td>@product.Description</td>
+                    <td>@product.Price</td>
+                    <td>@product.SKU</td>
+                    <td>@product.Stock</td>
+                    <td>@categories.FirstOrDefault(c => c.Id == product.categoryId)?.Description</td>
+                    <td>@productTypes.FirstOrDefault(pt => pt.Id == product.productTypeId)?.Description</td>
+                    <td>@metricsU.FirstOrDefault(mu => mu.Id == product.metricUnitId)?.Description</td>
+                    <td>
+                        <a href="/AddEditProduct/@product.Id" class="btn btn-primary">Editar</a>
+                        <button type="button" @onclick="@(() => EliminarProducto(product.Id))" class="btn btn-danger">Eliminar</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+
+@code {
+    private IEnumerable<ProductDto>? products;
+    private IEnumerable<CategoryDto>? categories;
+    private IEnumerable<ProductTypeDto>? productTypes;
+    private IEnumerable<MetricUnitDto>? metricsU;
+
+    protected override async Task OnInitializedAsync()
+    {
+        //seteo la informacion del producto seleccionado en la tabla
+        products = await productService.GetProductAsync();
+        // Obtener las categorías
+        categories = await categoryService.GetCategoryAsync();
+        // Obtener los tipos de productos
+        productTypes = await productTypeService.GetProductTypeAsync();
+        // Obtener las unidades de medida
+        metricsU = await metricUService.GetMetricUnitAsync();
+        StateHasChanged();
+    }
+
+    public async void EliminarProducto(int Id)
+    {
+        var confirmar = await JSRuntime.InvokeAsync<bool>("confirm", "¿Estás seguro de que quieres eliminar este producto?");
+
+        if (confirmar)
+        {
+            try
+            {
+                var exito = await productService.DeleteProductAsync(Id);
+
+                if (exito)
+                {
+                    // Eliminación exitosa, actualizar la lista de productos.
+                    products = await productService.GetProductAsync();
+                    StateHasChanged();
+                }
+                else
+                {
+                    // Manejar errores de eliminación
+                }
+            }
+            catch (Exception ex)
+            {
+                // Manejar errores de red u otros errores
+            }
+        }
+    }
+
+}

@@ -1,0 +1,81 @@
+﻿@page "/metricunit"
+
+@using WarehouseMgmtApp.Client.Services
+@using WarehouseMgmtApp.Client.Services.Dtos
+@inject MetricUnitService metricUService
+@inject IJSRuntime JSRuntime
+@rendermode InteractiveServer
+
+<PageTitle>Metrics Units</PageTitle>
+
+<a href="/NewMetricU" class="btn btn-primary">Nuevo</a>
+
+@if (metrics == null)
+{
+    <p><em>Cargando...</em></p>
+}
+else
+{
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Descripción</th>
+                <th>Acción</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var mu in metrics)
+            {
+                <tr>
+                    <td>@mu.Id</td>
+                    <td>@mu.Description</td>
+                    <td>
+                        <a href="/AddEditMetric/@mu.Id" class="btn btn-primary">Editar</a>
+                        <button type="button" @onclick="@(() => EliminarUnidadMedida(@mu.Id))" class="btn btn-danger">Eliminar</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private IEnumerable<MetricUnitDto>? metrics;
+
+    protected override async Task OnInitializedAsync()
+    {
+        metrics = await metricUService.GetMetricUnitAsync();
+        StateHasChanged();
+    }
+
+    public async void EliminarUnidadMedida(int Id)
+    {
+        var confirmar = await JSRuntime.InvokeAsync<bool>("confirm", "¿Estás seguro de que quieres eliminar esta unidad de medida?");
+
+        if (confirmar)
+        {
+            try
+            {
+                var exito = await metricUService.DeleteMetricUnitAsync(Id);
+
+                if (exito)
+                {
+                    // Eliminación exitosa, actualizar la lista de categorías o realizar cualquier otra acción necesaria.
+                    metrics = await metricUService.GetMetricUnitAsync();
+                    StateHasChanged();
+                }
+                else
+                {
+                    // Manejar errores de eliminación
+                }
+            }
+            catch (Exception ex)
+            {
+                // Manejar errores de red u otros errores
+            }
+        }
+    }
+
+}

@@ -1,0 +1,42 @@
+﻿<Router AppAssembly="typeof(Program).Assembly" AdditionalAssemblies="new[] { typeof(Client._Imports).Assembly }">
+    <Found Context="routeData">
+        <RouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)" />
+        <FocusOnNavigate RouteData="routeData" Selector="h1" />
+    </Found>
+</Router>
+
+
+
+﻿@* @using WarehouseMgmtApp.Client.Pages
+@using Microsoft.AspNetCore.Components.Authorization
+@inject NavigationManager navManager
+
+<CascadingAuthenticationState>
+    <Router AppAssembly="@typeof(Program).Assembly" AdditionalAssemblies="new[] { typeof(Client._Imports).Assembly }">
+        <Found Context="routeData">
+
+            <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(Layout.MainLayout)">
+                <NotAuthorized>
+
+                    @{
+                        if (context.User.Identity?.IsAuthenticated != true)
+                            navManager.NavigateTo("/");
+                        else
+                        {
+                            <p class="alert alert-danger">No esta autorizado para ver esta pagina</p>
+                        }
+                    }
+
+                </NotAuthorized>
+            </AuthorizeRouteView>
+
+        </Found>
+        <NotFound>
+            <PageTitle>Not found</PageTitle>
+            <LayoutView Layout="@typeof(Layout.MainLayout)">
+                <p role="alert">Sorry, there's nothing at this address.</p>
+            </LayoutView>
+        </NotFound>
+    </Router>
+
+</CascadingAuthenticationState> *@

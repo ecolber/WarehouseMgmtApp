@@ -1,0 +1,81 @@
+﻿@page "/producttype"
+
+@using WarehouseMgmtApp.Client.Services
+@using WarehouseMgmtApp.Client.Services.Dtos
+@inject ProductTypeService prodTService
+@inject IJSRuntime JSRuntime
+@rendermode InteractiveServer
+
+<PageTitle>Products Types</PageTitle>
+
+<a href="/NewProductType" class="btn btn-primary">Nuevo</a>
+
+@if (productsTypes == null)
+{
+    <p><em>Cargando...</em></p>
+}
+else
+{
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Descripción</th>
+                <th>Acción</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var pt in productsTypes)
+            {
+                <tr>
+                    <td>@pt.Id</td>
+                    <td>@pt.Description</td>
+                    <td>
+                        <a href="/AddEditProductType/@pt.Id" class="btn btn-primary">Editar</a>
+                        <button type="button" @onclick="@(() => EliminarTipoProducto(@pt.Id))" class="btn btn-danger">Eliminar</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private IEnumerable<ProductTypeDto>? productsTypes;
+
+    protected override async Task OnInitializedAsync()
+    {
+        productsTypes = await prodTService.GetProductTypeAsync();
+        StateHasChanged();
+    }
+
+    public async void EliminarTipoProducto(int Id)
+    {
+        var confirmar = await JSRuntime.InvokeAsync<bool>("confirm", "¿Estás seguro de que quieres eliminar este tipo de producto?");
+
+        if (confirmar)
+        {
+            try
+            {
+                var exito = await prodTService.DeleteProductTypeAsync(Id);
+
+                if (exito)
+                {
+                    // Eliminación exitosa, actualizar la lista de categorías o realizar cualquier otra acción necesaria.
+                    productsTypes = await prodTService.GetProductTypeAsync();
+                    StateHasChanged();
+                }
+                else
+                {
+                    // Manejar errores de eliminación
+                }
+            }
+            catch (Exception ex)
+            {
+                // Manejar errores de red u otros errores
+            }
+        }
+    }
+
+}

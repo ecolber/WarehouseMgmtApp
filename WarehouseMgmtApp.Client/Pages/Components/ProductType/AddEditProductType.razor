@@ -1,0 +1,64 @@
+﻿@using WarehouseMgmtApp.Client.Services
+@using WarehouseMgmtApp.Client.Services.Dtos
+@using WarehouseMgmtApp.Client.Models
+@inject NavigationManager NavigationManager
+@inject ProductTypeService productTService
+@inject HttpClient HttpClient
+
+<PageTitle>Edit Metrics Units</PageTitle>
+
+<EditForm Method="post" Model="productType" OnValidSubmit="EnviarDatos" FormName="EditCatForm">
+
+    <div class="form-group">
+        <label for="name">Descripcion Tipo de Producto:</label>
+        <InputText id="descripcion" class="form-control" @bind-Value="productType.Description" />
+    </div>
+
+    <div class="form-group">
+        <button type="submit" class="btn btn-primary">Enviar</button>
+    </div>
+</EditForm>
+
+
+
+@code {
+    [Parameter]
+    public string Id { get; set; }
+
+
+    [SupplyParameterFromForm]
+    public ProductTypeDto productType { get; set; } = new ProductTypeDto();
+
+
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Id != null) //si no es nulo, es una edicion, se busca el texto categoria y se setea en el input
+        {
+            //productType = await productTService.GetProductTypeByIdAsync(Convert.ToInt32(Id));
+        }
+
+    }
+
+
+
+
+    public async Task EnviarDatos()
+    {
+        if (Id == null) // se agregara nuevo registro
+        {
+            await productTService.AddProductTypeAsync(productType);
+            NavigationManager.NavigateTo("/ProductsTypes");
+        }
+        else //editar una categoria
+        {
+            await productTService.UpdateProductTypeAsync(productType, Convert.ToInt32(Id));
+            NavigationManager.NavigateTo("/ProductsTypes");
+        }
+    }
+
+}
+
+
+
